@@ -26,19 +26,15 @@ export class LayoutComponent extends HTMLElement {
   render(): void {
     if (!this.shadowRoot) return;
 
-    // Create header element
-    const header = document.createElement("div");
+    const header = document.createElement("header");
     header.classList.add("dashboard-header");
     header.textContent = "Taxi Dashboard";
 
-    // Create the main content layout container
-    const layout = document.createElement("div");
+    const layout = document.createElement("main");
     layout.classList.add("dashboard-content");
 
-    // Append header first
     this.shadowRoot.appendChild(header);
 
-    // Append the layout container which will hold the filter and chart
     this.shadowRoot.appendChild(layout);
 
     const style = document.createElement("style");
@@ -89,28 +85,23 @@ export class LayoutComponent extends HTMLElement {
       this.trips = await this.fetchTripsUseCase.execute();
 
       if (this.trips.length > 0) {
-        // Read the date from URL parameters if present
         const urlParams = new URLSearchParams(window.location.search);
         const dateParam = urlParams.get("date");
         const firstDate = dateParam || this.trips[0].taxiPassengerEnhancementProgramPickUpDateTime;
 
-        // Initialize FilterComponent with the first date or date from URL
         this.filterComponent = new FilterComponent(this.onFilterChange.bind(this), firstDate);
 
-        // Initialize TripWidget
         this.tripWidget = new TripWidget();
 
-        // Append the FilterComponent and TripWidget into the dashboard content layout
         const dashboardContent = this.shadowRoot?.querySelector(".dashboard-content");
         if (dashboardContent) {
           dashboardContent.append(this.filterComponent, this.tripWidget);
         }
 
-        // Apply filter if date parameter is available in URL
         if (dateParam) {
           this.onFilterChange(dateParam);
         } else {
-          this.tripWidget.update(this.trips); // Update with all data if no filter applied
+          this.tripWidget.update(this.trips);
         }
       } else {
         console.error("No trips data available to render.");
