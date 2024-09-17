@@ -2,7 +2,9 @@ import { TripRepository } from "../domain/TripRepository";
 import { Trip } from "../domain/Trip";
 import { Http } from "../../../shared/infrastructure/Http";
 import { ApiTripDTO } from "./ApiTripDTO";
+import { ConstructorMetadataEmitter } from "../../../dependency-injection/ConstructorMetadataEmitter";
 
+@ConstructorMetadataEmitter()
 export class ApiTripRepository extends TripRepository {
   private static API_URL = import.meta.env.VITE_API_URL;
   private static API_TOKEN = import.meta.env.VITE_API_TOKEN;
