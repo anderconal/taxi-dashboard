@@ -24,11 +24,28 @@ export class FilterComponent extends HTMLElement {
       filterInput.type = "date";
       filterInput.id = "filter";
   
-      filterInput.value = this.formatDateToInput(this.firstDate);
+      // Read the date from URL parameters if available
+      const urlParams = new URLSearchParams(window.location.search);
+      const dateParam = urlParams.get("date");
+  
+      // Determine the default date: use URL date if present, otherwise use first date
+      const defaultDate = dateParam || this.formatDateToInput(this.firstDate);
+  
+      // Set the input's default value to the formatted first date or URL date
+      filterInput.value = defaultDate;
+  
+      // If no date is in the URL, set it now to the default date
+      if (!dateParam) {
+        this.updateUrlWithDate(defaultDate);
+      }
   
       filterInput.addEventListener("change", (event) => {
         const target = event.target as HTMLInputElement;
-        this.onFilterChange(target.value);
+        const date = target.value;
+        this.onFilterChange(date);
+  
+        // Update the URL with the selected date as a query parameter
+        this.updateUrlWithDate(date);
       });
   
       const style = document.createElement("style");
@@ -69,7 +86,13 @@ export class FilterComponent extends HTMLElement {
   
     private formatDateToInput(dateString: string): string {
       const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
+      return date.toISOString().split("T")[0]; // Formats as YYYY-MM-DD
+    }
+  
+    private updateUrlWithDate(date: string): void {
+      const url = new URL(window.location.href);
+      url.searchParams.set("date", date);
+      window.history.replaceState({}, "", url.toString());
     }
   }
   
