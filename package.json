@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "lint:ts": "npx eslint",
-    "lint:ts:fix": "npx eslint --fix"
+    "lint:ts:fix": "npx eslint --fix",
+    "lint:css": "npx stylelint \"**/*.css\"",
+    "lint:css:fix": "npx stylelint \"**/*.css\" --fix"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
@@ -17,6 +19,8 @@
     "@types/node": "^22.5.5",
     "eslint": "^9.10.0",
     "globals": "^15.9.0",
+    "stylelint": "^16.9.0",
+    "stylelint-config-standard": "^36.0.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.6.0",
     "vite": "^5.4.1"
