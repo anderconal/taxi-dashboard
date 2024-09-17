@@ -36,10 +36,8 @@ export class TripWidget extends HTMLElement {
     style.textContent = `
       :host {
         display: block;
-        width: 100%;
         height: auto;
         background: #f9f9f9;
-        border-radius: var(--border-radius);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         padding: var(--padding);
         margin-bottom: var(--padding);

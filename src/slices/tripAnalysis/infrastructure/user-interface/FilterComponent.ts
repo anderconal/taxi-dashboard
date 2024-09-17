@@ -51,7 +51,6 @@ export class FilterComponent extends HTMLElement {
           gap: var(--padding);
           background: white;
           padding: var(--padding);
-          border-radius: var(--border-radius);
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
   
