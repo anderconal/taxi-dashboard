@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "diod": "^2.0.0",
-    "echarts": "^5.5.1"
+    "echarts": "^5.5.1",
+    "reflect-metadata": "^0.2.2"
   }
 }
