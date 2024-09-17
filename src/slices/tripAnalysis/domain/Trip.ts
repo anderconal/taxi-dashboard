@@ -1,12 +1,12 @@
 export interface Trip {
-  vendorid: number;
-  tpep_pickup_datetime: string;
-  tpep_dropoff_datetime: string;
-  passenger_count: number;
-  trip_distance: number;
-  ratecodeid: number;
-  payment_type: number;
-  total_amount: number;
-  pulocationid: number;
-  dolocationid: number;
+  vendorId: number;
+  taxiPassengerEnhancementProgramPickUpDateTime: string;
+  taxiPassengerEnhancementProgramDropOffDateTime: string;
+  passengerCount: number;
+  tripDistance: number;
+  rateCodeId: number;
+  paymentType: number;
+  totalAmount: number;
+  pickUpLocationId: number;
+  dropOffLocationId: number;
 }
