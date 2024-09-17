@@ -7,7 +7,7 @@ test.describe("Trips Analysis", () => {
   });
 
   test("renders Trip Earnings by Pick-Up Date and Time Chart, supporting date filtering and deep linking", async ({ page }) => {
-        const header = page.getByText("Taxi Dashboard");
+        const header = page.getByRole("heading", { name: "NYC Taxi Company" });
         await expect(header).toBeVisible();
 
         const filterLabel = page.getByText("Filter by Date:");
