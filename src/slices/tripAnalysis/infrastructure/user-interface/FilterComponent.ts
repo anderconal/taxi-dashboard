@@ -1,9 +1,11 @@
 export class FilterComponent extends HTMLElement {
     private onFilterChange: (filter: string) => void;
+    private firstDate: string;
   
-    constructor(onFilterChange: (filter: string) => void) {
+    constructor(onFilterChange: (filter: string) => void, firstDate: string) {
       super();
       this.onFilterChange = onFilterChange;
+      this.firstDate = firstDate;
       this.attachShadow({ mode: "open" });
     }
   
@@ -21,6 +23,8 @@ export class FilterComponent extends HTMLElement {
       const filterInput = document.createElement("input");
       filterInput.type = "date";
       filterInput.id = "filter";
+  
+      filterInput.value = this.formatDateToInput(this.firstDate);
   
       filterInput.addEventListener("change", (event) => {
         const target = event.target as HTMLInputElement;
@@ -61,6 +65,11 @@ export class FilterComponent extends HTMLElement {
   
       this.shadowRoot.appendChild(filterLabel);
       this.shadowRoot.appendChild(filterInput);
+    }
+  
+    private formatDateToInput(dateString: string): string {
+      const date = new Date(dateString);
+      return date.toISOString().split("T")[0];
     }
   }
   

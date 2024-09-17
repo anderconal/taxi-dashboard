@@ -9,26 +9,35 @@ export class TripWidget extends HTMLElement {
     this.attachShadow({ mode: "open" });
   }
 
-  connectedCallback(): void {
+  connectedCallback() {
     this.render();
+    window.addEventListener("resize", this.handleResize.bind(this));
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener("resize", this.handleResize.bind(this));
   }
 
   render(): void {
     if (!this.shadowRoot) return;
 
     const container = document.createElement("div");
-    container.style.width = "100%";
-    container.style.height = "450px";
+    container.style.width = "100%"; 
+    container.style.height = "500px";
     this.shadowRoot.appendChild(container);
 
-    this.chart = echarts.init(container);
+    if (!this.chart) {
+      this.chart = echarts.init(container);
+    } else {
+      this.chart.resize();
+    }
 
     const style = document.createElement("style");
     style.textContent = `
       :host {
         display: block;
         width: 100%;
-        height: 450px;
+        height: auto;
         background: #f9f9f9;
         border-radius: var(--border-radius);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -45,7 +54,8 @@ export class TripWidget extends HTMLElement {
 
       @media (max-width: var(--breakpoint-medium)) {
         :host {
-          height: 350px;
+          height: auto;
+          min-height: 350px;
         }
       }
     `;
@@ -53,96 +63,104 @@ export class TripWidget extends HTMLElement {
   }
 
   update(data: Trip[]): void {
-    if (!this.chart) return;
+    if (!this.chart) {
+      console.error("Chart is not initialized.");
+      return;
+    }
 
     const option: echarts.EChartsOption = {
-        title: {
-          text: "Trip Earnings by Pick-Up Date and Time",
-          left: "center",
-          textStyle: {
-            fontSize: 16,
-            fontWeight: "bold",
-            color: "#333",
-          },
+      title: {
+        text: "Trip Earnings by Pick-Up Date and Time",
+        left: "center",
+        textStyle: {
+          fontSize: 16,
+          fontWeight: "bold",
+          color: "#333",
         },
-        tooltip: {
-          trigger: "axis",
-          formatter: (params: echarts.TooltipComponentFormatterCallbackParams): string => {
-            if (Array.isArray(params) && params.length > 0) {
-              const firstParam = params[0];
-              if ("axisValue" in firstParam && "data" in firstParam) {
-                const date = firstParam.axisValue as string;
-                const amount = firstParam.data as number;
-                return `Pick-Up: ${date}<br/>Total Amount: $${amount.toFixed(2)}`;
-              }
+      },
+      tooltip: {
+        trigger: "axis",
+        formatter: (params: echarts.TooltipComponentFormatterCallbackParams): string => {
+          if (Array.isArray(params) && params.length > 0) {
+            const firstParam = params[0];
+            if ("axisValue" in firstParam && "data" in firstParam) {
+              const date = firstParam.axisValue as string;
+              const amount = firstParam.data as number;
+              return `Pick-Up: ${date}<br/>Total Amount: $${amount.toFixed(2)}`;
             }
-            return "";
+          }
+          return "";
+        },
+      },
+      xAxis: {
+        type: "category",
+        data: data.map((trip: Trip) => new Date(trip.taxiPassengerEnhancementProgramPickUpDateTime).toLocaleString()),
+        axisLabel: {
+          rotate: 45,
+          formatter: (value: string) => new Date(value).toLocaleDateString("en-US", { 
+            month: "short", 
+            day: "numeric", 
+            hour: "numeric", 
+            minute: "numeric" 
+          }),
+          interval: "auto",
+          fontSize: 10,
+        },
+        name: "Pick-Up Date and Time",
+        nameLocation: "middle",
+        nameGap: 40,
+        nameTextStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+          padding: [40, 0, 0, 0],
+        },
+      },
+      yAxis: {
+        type: "value",
+        name: "Total Amount ($)",
+        nameLocation: "middle",
+        nameGap: 60,
+        axisLabel: {
+          formatter: (value: number) => `$${value.toFixed(2)}`,
+        },
+        nameTextStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+        },
+      },
+      grid: {
+        left: "15%",
+        right: "15%",
+        bottom: "25%",
+        containLabel: true,
+      },
+      series: [{
+        data: data.map((trip: Trip) => trip.totalAmount),
+        type: "line",
+        smooth: true,
+        lineStyle: {
+          color: "#007ACC",
+          width: 2,
+        },
+        areaStyle: {
+          color: "rgba(0, 122, 204, 0.3)",
+        },
+        emphasis: {
+          focus: "series",
+          itemStyle: {
+            borderColor: "#FF4500",
+            borderWidth: 3,
           },
         },
-        xAxis: {
-          type: "category",
-          data: data.map((trip: Trip) => new Date(trip.taxiPassengerEnhancementProgramPickUpDateTime).toLocaleString()),
-          axisLabel: {
-            rotate: 45,
-            formatter: (value: string) => new Date(value).toLocaleDateString("en-US", { 
-              month: "short", 
-              day: "numeric", 
-              hour: "numeric", 
-              minute: "numeric" 
-            }),
-            interval: 0,
-            fontSize: 10,
-          },
-          name: "Pick-Up Date and Time",
-          nameLocation: "middle",
-          nameGap: 50,
-          nameTextStyle: {
-            fontSize: 12,
-            fontWeight: "bold",
-            padding: [30, 0, 0, 0],
-          },
-        },
-        yAxis: {
-          type: "value",
-          name: "Total Amount ($)",
-          nameLocation: "middle",
-          nameGap: 60,
-          axisLabel: {
-            formatter: (value: number) => `$${value.toFixed(2)}`,
-          },
-          nameTextStyle: {
-            fontSize: 12,
-            fontWeight: "bold",
-          },
-        },
-        series: [{
-          data: data.map((trip: Trip) => trip.totalAmount),
-          type: "line",
-          smooth: true,
-          lineStyle: {
-            color: "#007ACC",
-            width: 2,
-          },
-          areaStyle: {
-            color: "rgba(0, 122, 204, 0.3)",
-          },
-          emphasis: {
-            focus: "series",
-            itemStyle: {
-              borderColor: "#FF4500",
-              borderWidth: 3,
-            },
-          },
-        }],
-        grid: {
-          left: "10%",
-          right: "10%",
-          bottom: "20%",
-          containLabel: true,
-        },
-      };
-      this.chart.setOption(option);
-      
+      }],
+    };
+    this.chart.setOption(option);
+  }
+
+  private handleResize() {
+    if (this.chart) {
+      this.chart.resize();
+    }
   }
 }
 

@@ -8,16 +8,13 @@ import { TripWidget } from "../../../slices/tripAnalysis/infrastructure/user-int
 export class LayoutComponent extends HTMLElement {
   private fetchTripsUseCase = container.get(FetchTripsUseCase);
   private filterTripsUseCase = container.get(FilterTripsUseCase);
-  private tripWidget: TripWidget;
-  private filterComponent: FilterComponent;
+  private tripWidget!: TripWidget;
+  private filterComponent!: FilterComponent; 
   private trips: Trip[] = [];
 
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-
-    this.tripWidget = new TripWidget();
-    this.filterComponent = new FilterComponent(this.onFilterChange.bind(this));
   }
 
   connectedCallback() {
@@ -28,15 +25,16 @@ export class LayoutComponent extends HTMLElement {
   render(): void {
     if (!this.shadowRoot) return;
 
-    const layout = document.createElement("div");
-    layout.classList.add("dashboard-content");
-
     const header = document.createElement("div");
     header.classList.add("dashboard-header");
     header.textContent = "Taxi Dashboard";
 
-    layout.appendChild(this.filterComponent);
-    layout.appendChild(this.tripWidget);
+    const layout = document.createElement("div");
+    layout.classList.add("dashboard-content");
+
+    this.shadowRoot.appendChild(header);
+
+    this.shadowRoot.appendChild(layout);
 
     const style = document.createElement("style");
     style.textContent = `
@@ -47,6 +45,9 @@ export class LayoutComponent extends HTMLElement {
         gap: var(--padding);
         width: 100%;
         max-width: 100%;
+        background-color: #ffffff;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
       .dashboard-header {
@@ -57,11 +58,14 @@ export class LayoutComponent extends HTMLElement {
         background-color: var(--primary-color);
         color: white;
         border-radius: var(--border-radius);
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: var(--padding);
       }
 
       .dashboard-content {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: var(--padding);
       }
 
@@ -72,14 +76,33 @@ export class LayoutComponent extends HTMLElement {
       }
     `;
 
-    this.shadowRoot.appendChild(header);
-    this.shadowRoot.appendChild(layout);
     this.shadowRoot.appendChild(style);
   }
 
   async loadInitialData() {
-    this.trips = await this.fetchTripsUseCase.execute();
-    this.tripWidget.update(this.trips);
+    try {
+      this.trips = await this.fetchTripsUseCase.execute();
+
+      if (this.trips.length > 0) {
+        const firstDate = this.trips[0].taxiPassengerEnhancementProgramPickUpDateTime;
+
+        this.filterComponent = new FilterComponent(this.onFilterChange.bind(this), firstDate);
+
+        this.tripWidget = new TripWidget();
+        this.tripWidget.connectedCallback();
+
+        const dashboardContent = this.shadowRoot?.querySelector(".dashboard-content");
+        if (dashboardContent) {
+          dashboardContent.append(this.filterComponent, this.tripWidget);
+        }
+
+        this.tripWidget.update(this.trips);
+      } else {
+        console.error("No trips data available to render.");
+      }
+    } catch (error) {
+      console.error("Error loading trips data:", error);
+    }
   }
 
   onFilterChange(filter: string) {
