@@ -1,38 +1,41 @@
+import { ProfitCategory } from "../../application/ProfitCategory";
+
 export class ProfitCategoryFilter extends HTMLElement {
-    private onChange: (value: "low" | "medium" | "high") => void;
-  
-    constructor(onChange: (value: "low" | "medium" | "high") => void) {
-      super();
-      this.onChange = onChange;
-      this.attachShadow({ mode: "open" });
-    }
-  
-    connectedCallback() {
-      this.render();
-    }
-  
-    render() {
-      if (!this.shadowRoot) return;
-  
-      const filterLabel = document.createElement("label");
-      filterLabel.setAttribute("for", "filter");
-      filterLabel.textContent = "Filter by Profit Category:";
+  private onChangeCallback: (profitCategory: ProfitCategory) => void;
+  private profitCategory: ProfitCategory;
 
-      const select = document.createElement("select");
-      select.innerHTML = `
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      `;
-      select.id = "filter";
+  constructor(onChangeCallback: (profitCategory: ProfitCategory) => void, initialCategory: ProfitCategory) {
+    super();
+    this.onChangeCallback = onChangeCallback;
+    this.profitCategory = initialCategory;
+    this.attachShadow({ mode: "open" });
+  }
 
-      select.addEventListener("change", () => {
-        const selectedValue = select.value as "low" | "medium" | "high";
-        this.onChange(selectedValue);
-      });
+  connectedCallback() {
+    this.render();
+  }
 
-      const style = document.createElement("style");
-      style.textContent = `
+  render() {
+    if (!this.shadowRoot) return;
+
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <label for="profit-category">Filter by Profit Category: </label>
+      <select id="profit-category">
+        <option value=${ProfitCategory.Low} ${this.profitCategory === ProfitCategory.Low ? "selected" : ""}>Low</option>
+        <option value=${ProfitCategory.Medium} ${this.profitCategory === ProfitCategory.Medium ? "selected" : ""}>Medium</option>
+        <option value=${ProfitCategory.High} ${this.profitCategory === ProfitCategory.High ? "selected" : ""}>High</option>
+      </select>
+    `;
+
+    const selectElement = container.querySelector("select");
+    selectElement?.addEventListener("change", (event) => {
+      const selectedCategory = (event.target as HTMLSelectElement).value as ProfitCategory;
+      this.onChangeCallback(selectedCategory);
+    });
+
+    const style = document.createElement("style");
+    style.textContent = `
         :host {
           display: flex;
           align-items: center;
@@ -64,11 +67,9 @@ export class ProfitCategoryFilter extends HTMLElement {
           }
         }
       `;
-      this.shadowRoot.appendChild(style);
-  
-      this.shadowRoot.appendChild(filterLabel);
-      this.shadowRoot.appendChild(select);
-    }
+    this.shadowRoot.appendChild(style);
+    this.shadowRoot.appendChild(container);
   }
-  
-  customElements.define("profit-category-filter", ProfitCategoryFilter);
+}
+
+customElements.define("profit-category-filter", ProfitCategoryFilter);

@@ -1,5 +1,6 @@
 import { ConstructorMetadataEmitter } from "../../../dependency-injection/ConstructorMetadataEmitter";
 import { Trip } from "../domain/Trip";
+import { ProfitCategory } from "./ProfitCategory";
 
 export interface AverageNetMargin {
   route: string;
@@ -10,8 +11,7 @@ export interface AverageNetMargin {
 export class GetAverageNetMarginByProfitUseCase {
   constructor() {}
 
-  async execute(trips: Trip[], profitCategory: "low" | "medium" | "high"): Promise<AverageNetMargin[]> {
-
+  execute(trips: Trip[], profitCategory: ProfitCategory): AverageNetMargin[] {
     const filteredTrips = trips.filter(trip => trip.getProfitCategory() === profitCategory);
 
     const marginsByRoute: Record<string, number[]> = {};

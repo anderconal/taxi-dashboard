@@ -1,3 +1,5 @@
+import { ProfitCategory } from "../application/ProfitCategory";
+
 export class Trip {
   private vendorId: number;
   private pickupDatetime: Date;
@@ -58,11 +60,11 @@ export class Trip {
     return this.formatToTwoDecimals(this.totalAmount - costs);
   }
 
-  getProfitCategory(): "low" | "medium" | "high" {
+  getProfitCategory(): ProfitCategory {
     const netMargin = this.calculateNetMargin();
-    if (netMargin < 10) return "low";
-    if (netMargin >= 10 && netMargin < 20) return "medium";
-    return "high";
+    if (netMargin < 10) return ProfitCategory.Low;
+    if (netMargin >= 10 && netMargin < 20) return ProfitCategory.Medium;
+    return ProfitCategory.High;
   }
 
   getRouteDescription(): string {

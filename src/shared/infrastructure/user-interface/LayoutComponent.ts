@@ -7,6 +7,7 @@ import { TripWidget } from "../../../slices/tripAnalysis/infrastructure/user-int
 import { ProfitCategoryFilter } from "../../../slices/tripAnalysis/infrastructure/user-interface/ProfitCategoryFilter";
 import { NetMarginBarChart } from "../../../slices/tripAnalysis/infrastructure/user-interface/NetMarginBarChart";
 import { GetAverageNetMarginByProfitUseCase } from "../../../slices/tripAnalysis/application/GetAverageNetMarginByProfitUseCase";
+import { ProfitCategory } from "../../../slices/tripAnalysis/application/ProfitCategory";
 
 export class LayoutComponent extends HTMLElement {
   private fetchTripsUseCase = container.get(FetchTripsUseCase);
@@ -155,18 +156,21 @@ export class LayoutComponent extends HTMLElement {
   async loadInitialData() {
     try {
       this.trips = await this.fetchTripsUseCase.execute();
-
+  
       if (this.trips.length > 0) {
         const urlParams = new URLSearchParams(window.location.search);
         const dateParam = urlParams.get("date");
+        const profitCategoryParam = urlParams.get("profitCategory");
+  
         const firstDate = dateParam || this.trips[0].getPickupDatetime().toISOString().split("T")[0];
-
+        const defaultProfitCategory = profitCategoryParam || ProfitCategory.Low;
+  
         this.filterComponent = new FilterComponent(this.onFilterChange.bind(this), firstDate);
+        this.profitCategoryFilter = new ProfitCategoryFilter(this.onCategoryChange.bind(this), defaultProfitCategory as ProfitCategory);
+  
         this.tripWidget = new TripWidget();
-
-        this.profitCategoryFilter = new ProfitCategoryFilter(this.onCategoryChange.bind(this));
         this.netMarginBarChart = new NetMarginBarChart();
-
+  
         const mainContent = this.shadowRoot?.querySelector(".dashboard-main");
         if (mainContent) {
           const netMarginBarChartContainer = document.createElement("div");
@@ -181,14 +185,18 @@ export class LayoutComponent extends HTMLElement {
 
           mainContent.append(netMarginBarChartContainer, tripWidgetContainer);
         }
-
+  
         if (dateParam) {
           this.onFilterChange(dateParam);
         } else {
           this.tripWidget.update(this.trips);
         }
-
-        this.loadNetMargins("low");
+  
+        this.loadNetMargins(defaultProfitCategory as ProfitCategory);
+  
+        if (!profitCategoryParam) {
+          this.updateURLWithProfitCategory(defaultProfitCategory);
+        }
       } else {
         console.error("No trips data available to render.");
       }
@@ -202,13 +210,21 @@ export class LayoutComponent extends HTMLElement {
     this.tripWidget.update(filteredTrips);
   }
 
-  async onCategoryChange(profitCategory: "low" | "medium" | "high") {
+  onCategoryChange(profitCategory: ProfitCategory) {
     this.loadNetMargins(profitCategory);
+    this.updateURLWithProfitCategory(profitCategory);
+  }
+  
+  loadNetMargins(profitCategory: ProfitCategory) {
+    const averageMargins = this.getAverageNetMarginByProfit.execute(this.trips, profitCategory);
+    this.netMarginBarChart.update(averageMargins);
   }
 
-  async loadNetMargins(profitCategory: "low" | "medium" | "high") {
-    const averageMargins = await this.getAverageNetMarginByProfit.execute(this.trips, profitCategory);
-    this.netMarginBarChart.update(averageMargins);
+  updateURLWithProfitCategory(profitCategory: string) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("profitCategory", profitCategory);
+    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+    window.history.replaceState({}, "", newUrl);
   }
 }
 
