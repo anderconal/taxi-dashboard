@@ -4,21 +4,30 @@ import { TripBuilder } from "../../domain/__tests__/TripBuilder";
 import { ProfitCategory } from "../ProfitCategory";
 import { Trip } from "../../domain/Trip";
 
-
 describe("GetAverageNetMarginByProfitUseCase", () => {
   const getAverageNetMarginByProfitUseCase = new GetAverageNetMarginByProfitUseCase();
+  const baseCommissionRate = 0.8;
 
   it("calculates correct average net margin for a single route", () => {
+    const firstTripTotalAmount = 15;
+    const firstTripTollsAmount = 5;
+    const secondTripTotalAmount = 12;
+    const secondTripTollsAmount = 3;
+
+    const firstTripNetMargin = firstTripTotalAmount - (firstTripTollsAmount + baseCommissionRate);
+    const secondTripNetMargin = secondTripTotalAmount - (secondTripTollsAmount + baseCommissionRate);
+    const expectedAverageNetMargin = (firstTripNetMargin + secondTripNetMargin) / 2;
+
     const trips = [
       new TripBuilder()
         .withPickupDatetime("2023-09-18T10:00:00Z")
-        .withTotalAmount(15)
-        .withTollsAmount(5)
+        .withTotalAmount(firstTripTotalAmount)
+        .withTollsAmount(firstTripTollsAmount)
         .build(),
       new TripBuilder()
         .withPickupDatetime("2023-09-18T12:00:00Z")
-        .withTotalAmount(12)
-        .withTollsAmount(3)
+        .withTotalAmount(secondTripTotalAmount)
+        .withTollsAmount(secondTripTollsAmount)
         .build(),
     ];
 
@@ -26,18 +35,23 @@ describe("GetAverageNetMarginByProfitUseCase", () => {
 
     expect(result.length).toBe(1);
     expect(result[0].route).toBe("1 to 2");
-    expect(result[0].averageNetMargin).toBeCloseTo(8.7);
+    expect(result[0].averageNetMargin).toBeCloseTo(expectedAverageNetMargin);
   });
 
   it("returns an empty array when no trips match the given profit category", () => {
+    const highProfitTotalAmount = 50;
+    const highProfitTollsAmount = 10;
+    const veryHighProfitTotalAmount = 60;
+    const veryHighProfitTollsAmount = 20;
+
     const trips = [
       new TripBuilder()
-        .withTotalAmount(50)
-        .withTollsAmount(10)
+        .withTotalAmount(highProfitTotalAmount)
+        .withTollsAmount(highProfitTollsAmount)
         .build(),
       new TripBuilder()
-        .withTotalAmount(60)
-        .withTollsAmount(20)
+        .withTotalAmount(veryHighProfitTotalAmount)
+        .withTollsAmount(veryHighProfitTollsAmount)
         .build(),
     ];
 
@@ -47,12 +61,14 @@ describe("GetAverageNetMarginByProfitUseCase", () => {
   });
 
   const categories = [
-    { totalAmount: 5, tollsAmount: 1, expectedNetMargin: 3.2, expectedCategory: ProfitCategory.Low },
-    { totalAmount: 6, tollsAmount: 2, expectedNetMargin: 3.2, expectedCategory: ProfitCategory.Low },
+    { totalAmount: 5, tollsAmount: 1, expectedCategory: ProfitCategory.Low },
+    { totalAmount: 6, tollsAmount: 2, expectedCategory: ProfitCategory.Low },
   ];
 
-  categories.forEach(({ totalAmount, tollsAmount, expectedNetMargin, expectedCategory }) => {
+  categories.forEach(({ totalAmount, tollsAmount, expectedCategory }) => {
     it(`filters trips by ${expectedCategory} and calculates the correct average net margin`, () => {
+      const expectedNetMargin = totalAmount - (tollsAmount + baseCommissionRate);
+
       const trips = [
         new TripBuilder()
           .withTotalAmount(totalAmount)
@@ -81,25 +97,32 @@ describe("GetAverageNetMarginByProfitUseCase", () => {
   });
 
   it("calculates average net margins for multiple routes", () => {
+    const firstRouteTripOneTotalAmount = 30;
+    const firstRouteTripOneTollsAmount = 15;
+    const secondRouteTripTotalAmount = 25;
+    const secondRouteTripTollsAmount = 12;
+    const firstRouteTripTwoTotalAmount = 32;
+    const firstRouteTripTwoTollsAmount = 18;
+
     const trips = [
       new TripBuilder()
         .withPickupDatetime("2023-09-18T10:00:00Z")
-        .withTotalAmount(30)
-        .withTollsAmount(15)
+        .withTotalAmount(firstRouteTripOneTotalAmount)
+        .withTollsAmount(firstRouteTripOneTollsAmount)
         .withPickUpLocationId("1")
         .withDropOffLocationId("2")
         .build(),
       new TripBuilder()
         .withPickupDatetime("2023-09-18T12:00:00Z")
-        .withTotalAmount(25)
-        .withTollsAmount(12)
+        .withTotalAmount(secondRouteTripTotalAmount)
+        .withTollsAmount(secondRouteTripTollsAmount)
         .withPickUpLocationId("3")
         .withDropOffLocationId("4")
         .build(),
       new TripBuilder()
         .withPickupDatetime("2023-09-18T14:00:00Z")
-        .withTotalAmount(32)
-        .withTollsAmount(18)
+        .withTotalAmount(firstRouteTripTwoTotalAmount)
+        .withTollsAmount(firstRouteTripTwoTollsAmount)
         .withPickUpLocationId("1")
         .withDropOffLocationId("2")
         .build(),
@@ -111,8 +134,10 @@ describe("GetAverageNetMarginByProfitUseCase", () => {
     expect(result[0].route).toBe("1 to 2");
     expect(result[1].route).toBe("3 to 4");
 
-    const avgNetMarginRoute1 = ((30 - 15.8) + (32 - 18.8)) / 2;
-    const avgNetMarginRoute2 = 25 - 12.8;
+    const firstRouteTripOneNetMargin = firstRouteTripOneTotalAmount - (firstRouteTripOneTollsAmount + baseCommissionRate);
+    const firstRouteTripTwoNetMargin = firstRouteTripTwoTotalAmount - (firstRouteTripTwoTollsAmount + baseCommissionRate);
+    const avgNetMarginRoute1 = (firstRouteTripOneNetMargin + firstRouteTripTwoNetMargin) / 2;
+    const avgNetMarginRoute2 = secondRouteTripTotalAmount - (secondRouteTripTollsAmount + baseCommissionRate);
 
     expect(result[0].averageNetMargin).toBeCloseTo(avgNetMarginRoute1);
     expect(result[1].averageNetMargin).toBeCloseTo(avgNetMarginRoute2);
