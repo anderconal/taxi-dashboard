@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
+    "test": "npx vitest",
     "lint:ts": "npx eslint",
     "lint:ts:fix": "npx eslint --fix",
     "lint:css": "npx stylelint \"**/*.css\"",
@@ -24,7 +25,8 @@
     "stylelint-config-standard": "^36.0.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.6.0",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "vitest": "^2.1.1"
   },
   "dependencies": {
     "diod": "^2.0.0",
