@@ -29,7 +29,7 @@ describe("FilterTripsUseCase", () => {
 
     const filteredTrips = filterTripsUseCase.execute(mockTrips, "");
 
-    expect(filteredTrips.length).toBe(2); // No filtering applied
+    expect(filteredTrips.length).toBe(2);
   });
 
   it("returns an empty array when trips array is empty", () => {

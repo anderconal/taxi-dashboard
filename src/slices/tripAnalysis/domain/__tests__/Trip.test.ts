@@ -6,14 +6,14 @@ describe("Trip", () => {
   
   it("calculates the net margin by subtracting costs from the total amount", () => {
     const trip = new TripBuilder()
-      .withTotalAmount(30.5) // totalAmount
+      .withTotalAmount(30.5)
       .build();
 
-    expect(trip.calculateNetMargin()).toBe(27.2); // Subtracts tolls, mta tax, surcharge
+    expect(trip.calculateNetMargin()).toBe(27.2);
   });
 
   it("throws an error when passenger count is zero or negative", () => {
-    const builder = new TripBuilder().withPassengerCount(0); // or -1
+    const builder = new TripBuilder().withPassengerCount(0);
     expect(() => builder.build()).toThrow("Passenger count must be greater than zero.");
   });
 

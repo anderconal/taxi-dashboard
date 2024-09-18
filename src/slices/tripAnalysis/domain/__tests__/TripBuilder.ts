@@ -55,6 +55,16 @@ export class TripBuilder {
     return this;
   }
 
+  withPickUpLocationId(id: string): TripBuilder {
+    this.pickUpLocationId = id;
+    return this;
+  }
+
+  withDropOffLocationId(id: string): TripBuilder {
+    this.dropOffLocationId = id;
+    return this;
+  }
+
   build(): Trip {
     return new Trip(
       this.vendorId,
