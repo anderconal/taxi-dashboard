@@ -33,5 +33,8 @@
     "diod": "^2.0.0",
     "echarts": "^5.5.1",
     "reflect-metadata": "^0.2.2"
+  },
+  "engines": {
+    "node": "^20.17.0"
   }
 }
