@@ -3,6 +3,7 @@ import { Trip } from "../domain/Trip";
 import { Http } from "../../../shared/infrastructure/Http";
 import { ApiTripDTO } from "./ApiTripDTO";
 import { ConstructorMetadataEmitter } from "../../../dependency-injection/ConstructorMetadataEmitter";
+import { mockLocationMapping } from "./mocks/MockLocationMapping";
 
 @ConstructorMetadataEmitter()
 export class ApiTripRepository extends TripRepository {
@@ -47,6 +48,9 @@ export class ApiTripRepository extends TripRepository {
   }
 
   private mapApiTaxiTripToTaxiTrip(apiTrip: ApiTripDTO): Trip {
+    const pickUpLocation = mockLocationMapping[apiTrip.pulocationid] || `Unknown (${apiTrip.pulocationid})`;
+    const dropOffLocation = mockLocationMapping[apiTrip.dolocationid] || `Unknown (${apiTrip.dolocationid})`;
+
     return new Trip(
       apiTrip.vendorid,
       apiTrip.tpep_pickup_datetime,
@@ -59,8 +63,8 @@ export class ApiTripRepository extends TripRepository {
       apiTrip.tolls_amount || 0,
       apiTrip.mta_tax || 0,
       apiTrip.improvement_surcharge || 0,
-      apiTrip.pulocationid,
-      apiTrip.dolocationid
+      pickUpLocation,
+      dropOffLocation
     );
   }
 }

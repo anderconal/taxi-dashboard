@@ -10,8 +10,8 @@ export class Trip {
   private tollsAmount: number;
   private mtaTax: number;
   private improvementSurcharge: number;
-  private pickUpLocationId: number;
-  private dropOffLocationId: number;
+  private pickUpLocationId: string;
+  private dropOffLocationId: string;
 
   constructor(
     vendorId: number,
@@ -25,8 +25,8 @@ export class Trip {
     tollsAmount: number,
     mtaTax: number,
     improvementSurcharge: number,
-    pickUpLocationId: number,
-    dropOffLocationId: number
+    pickUpLocationId: string,
+    dropOffLocationId: string
   ) {
     this.vendorId = vendorId;
     this.pickupDatetime = new Date(pickupDatetime);
@@ -125,11 +125,11 @@ export class Trip {
     return this.improvementSurcharge;
   }
 
-  getPickUpLocationId(): number {
+  getPickUpLocationId(): string {
     return this.pickUpLocationId;
   }
 
-  getDropOffLocationId(): number {
+  getDropOffLocationId(): string {
     return this.dropOffLocationId;
   }
 }

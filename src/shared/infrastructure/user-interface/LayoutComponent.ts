@@ -4,13 +4,18 @@ import { FilterTripsUseCase } from "../../../slices/tripAnalysis/application/Fil
 import { Trip } from "../../../slices/tripAnalysis/domain/Trip";
 import { FilterComponent } from "../../../slices/tripAnalysis/infrastructure/user-interface/FilterComponent";
 import { TripWidget } from "../../../slices/tripAnalysis/infrastructure/user-interface/TripWidget";
-
+import { ProfitCategoryFilter } from "../../../slices/tripAnalysis/infrastructure/user-interface/ProfitCategoryFilter";
+import { NetMarginBarChart } from "../../../slices/tripAnalysis/infrastructure/user-interface/NetMarginBarChart";
+import { GetAverageNetMarginByProfit } from "../../../slices/tripAnalysis/application/GetAverageNetMarginByProfitUseCase";
 
 export class LayoutComponent extends HTMLElement {
   private fetchTripsUseCase = container.get(FetchTripsUseCase);
   private filterTripsUseCase = container.get(FilterTripsUseCase);
-  private tripWidget!: TripWidget; 
-  private filterComponent!: FilterComponent; 
+  private getAverageNetMarginByProfit = container.get(GetAverageNetMarginByProfit);
+  private tripWidget!: TripWidget;
+  private filterComponent!: FilterComponent;
+  private profitCategoryFilter!: ProfitCategoryFilter;
+  private netMarginBarChart!: NetMarginBarChart;
   private trips: Trip[] = [];
 
   constructor() {
@@ -44,7 +49,6 @@ export class LayoutComponent extends HTMLElement {
     main.classList.add("dashboard-main");
 
     this.shadowRoot.append(header, nav);
-
     this.shadowRoot.appendChild(main);
 
     const footer = document.createElement("footer");
@@ -61,9 +65,9 @@ export class LayoutComponent extends HTMLElement {
         padding: var(--padding);
         gap: var(--padding);
         width: 100%;
-        background-color: #f8f9fa; /* Light background */
+        background-color: #f8f9fa;
         font-family: Arial, sans-serif;
-        color: #333; /* Text color */
+        color: #333;
       }
 
       .dashboard-header {
@@ -71,7 +75,7 @@ export class LayoutComponent extends HTMLElement {
         top: 0;
         z-index: 100;
         padding: 1rem 2rem;
-        background-color: #4e73df; /* Blue color */
+        background-color: #4e73df;
         color: white;
         display: flex;
         justify-content: space-between;
@@ -96,10 +100,6 @@ export class LayoutComponent extends HTMLElement {
         display: flex;
         gap: 1rem;
         padding: 0;
-        margin: 0;
-      }
-
-      .nav-tabs li {
         margin: 0;
       }
 
@@ -130,14 +130,7 @@ export class LayoutComponent extends HTMLElement {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
-        align-items: stretch; /* Full width usage */
-      }
-
-      .dashboard-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
+        align-items: stretch;
       }
 
       .dashboard-footer {
@@ -151,7 +144,7 @@ export class LayoutComponent extends HTMLElement {
 
       @media (max-width: 768px) {
         .dashboard-main {
-          flex-direction: column; /* Responsive to smaller screens */
+          flex-direction: column;
         }
       }
     `;
@@ -169,8 +162,10 @@ export class LayoutComponent extends HTMLElement {
         const firstDate = dateParam || this.trips[0].getPickupDatetime().toISOString().split("T")[0];
 
         this.filterComponent = new FilterComponent(this.onFilterChange.bind(this), firstDate);
-
         this.tripWidget = new TripWidget();
+
+        this.profitCategoryFilter = new ProfitCategoryFilter(this.onCategoryChange.bind(this));
+        this.netMarginBarChart = new NetMarginBarChart();
 
         const mainContent = this.shadowRoot?.querySelector(".dashboard-main");
         if (mainContent) {
@@ -179,7 +174,12 @@ export class LayoutComponent extends HTMLElement {
           combinedCard.appendChild(this.filterComponent);
           combinedCard.appendChild(this.tripWidget);
 
-          mainContent.append(combinedCard);
+          const chartCard = document.createElement("div");
+          chartCard.classList.add("dashboard-card");
+          chartCard.appendChild(this.profitCategoryFilter);
+          chartCard.appendChild(this.netMarginBarChart);
+
+          mainContent.append(combinedCard, chartCard);
         }
 
         if (dateParam) {
@@ -187,6 +187,8 @@ export class LayoutComponent extends HTMLElement {
         } else {
           this.tripWidget.update(this.trips);
         }
+
+        this.loadNetMargins("low");
       } else {
         console.error("No trips data available to render.");
       }
@@ -198,6 +200,15 @@ export class LayoutComponent extends HTMLElement {
   onFilterChange(filter: string) {
     const filteredTrips = this.filterTripsUseCase.execute(this.trips, filter);
     this.tripWidget.update(filteredTrips);
+  }
+
+  async onCategoryChange(profitCategory: "low" | "medium" | "high") {
+    this.loadNetMargins(profitCategory);
+  }
+
+  async loadNetMargins(profitCategory: "low" | "medium" | "high") {
+    const averageMargins = await this.getAverageNetMarginByProfit.execute(this.trips, profitCategory);
+    this.netMarginBarChart.update(averageMargins);
   }
 }
 
