@@ -7,7 +7,7 @@ export interface AverageNetMargin {
 }
 
 @ConstructorMetadataEmitter()
-export class GetAverageNetMarginByProfit {
+export class GetAverageNetMarginByProfitUseCase {
   constructor() {}
 
   async execute(trips: Trip[], profitCategory: "low" | "medium" | "high"): Promise<AverageNetMargin[]> {

@@ -6,12 +6,12 @@ import { FilterComponent } from "../../../slices/tripAnalysis/infrastructure/use
 import { TripWidget } from "../../../slices/tripAnalysis/infrastructure/user-interface/TripWidget";
 import { ProfitCategoryFilter } from "../../../slices/tripAnalysis/infrastructure/user-interface/ProfitCategoryFilter";
 import { NetMarginBarChart } from "../../../slices/tripAnalysis/infrastructure/user-interface/NetMarginBarChart";
-import { GetAverageNetMarginByProfit } from "../../../slices/tripAnalysis/application/GetAverageNetMarginByProfitUseCase";
+import { GetAverageNetMarginByProfitUseCase } from "../../../slices/tripAnalysis/application/GetAverageNetMarginByProfitUseCase";
 
 export class LayoutComponent extends HTMLElement {
   private fetchTripsUseCase = container.get(FetchTripsUseCase);
   private filterTripsUseCase = container.get(FilterTripsUseCase);
-  private getAverageNetMarginByProfit = container.get(GetAverageNetMarginByProfit);
+  private getAverageNetMarginByProfit = container.get(GetAverageNetMarginByProfitUseCase);
   private tripWidget!: TripWidget;
   private filterComponent!: FilterComponent;
   private profitCategoryFilter!: ProfitCategoryFilter;
