@@ -8,6 +8,6 @@ export class FilterTripsUseCase {
   execute(trips: Trip[], filterDate: string): Trip[] {
     if (!filterDate) return trips;
 
-    return trips.filter(trip => trip.taxiPassengerEnhancementProgramPickUpDateTime.startsWith(filterDate));
+    return trips.filter(trip => trip.getPickupDatetime().toISOString().split("T")[0].startsWith(filterDate));
   }
 }

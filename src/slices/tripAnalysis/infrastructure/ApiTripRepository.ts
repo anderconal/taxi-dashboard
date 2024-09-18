@@ -15,13 +15,20 @@ export class ApiTripRepository extends TripRepository {
 
   async fetchTrips(limit: number = 25, offset: number = 0): Promise<Trip[]> {
     const url = new URL(ApiTripRepository.API_URL);
+
     const sqlQuery = `
       SELECT 
+        vendorid,
         tpep_pickup_datetime,
         tpep_dropoff_datetime,
         passenger_count,
         trip_distance,
+        ratecodeid,
+        payment_type,
         total_amount,
+        tolls_amount,
+        mta_tax,
+        improvement_surcharge,
         pulocationid,
         dolocationid
       FROM _
@@ -40,17 +47,20 @@ export class ApiTripRepository extends TripRepository {
   }
 
   private mapApiTaxiTripToTaxiTrip(apiTrip: ApiTripDTO): Trip {
-    return {
-      vendorId: apiTrip.vendorid,
-      taxiPassengerEnhancementProgramPickUpDateTime: apiTrip.tpep_pickup_datetime,
-      taxiPassengerEnhancementProgramDropOffDateTime: apiTrip.tpep_dropoff_datetime,
-      passengerCount: apiTrip.passenger_count,
-      tripDistance: apiTrip.trip_distance,
-      rateCodeId: apiTrip.ratecodeid,
-      paymentType: apiTrip.payment_type,
-      totalAmount: parseFloat(apiTrip.total_amount),
-      pickUpLocationId: apiTrip.pulocationid,
-      dropOffLocationId: apiTrip.dolocationid,
-    };
+    return new Trip(
+      apiTrip.vendorid,
+      apiTrip.tpep_pickup_datetime,
+      apiTrip.tpep_dropoff_datetime,
+      apiTrip.passenger_count,
+      apiTrip.trip_distance,
+      apiTrip.ratecodeid,
+      apiTrip.payment_type,
+      parseFloat(apiTrip.total_amount),
+      apiTrip.tolls_amount || 0,
+      apiTrip.mta_tax || 0,
+      apiTrip.improvement_surcharge || 0,
+      apiTrip.pulocationid,
+      apiTrip.dolocationid
+    );
   }
 }

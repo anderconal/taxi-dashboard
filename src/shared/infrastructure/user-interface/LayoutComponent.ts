@@ -166,7 +166,7 @@ export class LayoutComponent extends HTMLElement {
       if (this.trips.length > 0) {
         const urlParams = new URLSearchParams(window.location.search);
         const dateParam = urlParams.get("date");
-        const firstDate = dateParam || this.trips[0].taxiPassengerEnhancementProgramPickUpDateTime;
+        const firstDate = dateParam || this.trips[0].getPickupDatetime().toISOString().split("T")[0];
 
         this.filterComponent = new FilterComponent(this.onFilterChange.bind(this), firstDate);
 

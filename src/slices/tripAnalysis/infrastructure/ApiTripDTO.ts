@@ -7,6 +7,9 @@ export interface ApiTripDTO {
     ratecodeid: number;
     payment_type: number;
     total_amount: string;
+    tolls_amount?: number;
+    mta_tax?: number;
+    improvement_surcharge?: number;
     pulocationid: number;
     dolocationid: number;
 }

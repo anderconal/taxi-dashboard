@@ -92,7 +92,7 @@ export class TripWidget extends HTMLElement {
       },
       xAxis: {
         type: "category",
-        data: data.map((trip: Trip) => new Date(trip.taxiPassengerEnhancementProgramPickUpDateTime).toLocaleString()),
+        data: data.map((trip: Trip) => new Date(trip.getPickupDatetime()).toLocaleString()),
         axisLabel: {
           rotate: 45,
           formatter: (value: string) => new Date(value).toLocaleDateString("en-US", { 
@@ -133,7 +133,7 @@ export class TripWidget extends HTMLElement {
         containLabel: true,
       },
       series: [{
-        data: data.map((trip: Trip) => trip.totalAmount),
+        data: data.map((trip: Trip) => trip.getTotalAmount()),
         type: "line",
         smooth: true,
         lineStyle: {
