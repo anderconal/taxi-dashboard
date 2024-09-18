@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:update:screenshots": "npx playwright test --update-snapshots",
     "test": "npx vitest",
     "lint:ts": "npx eslint",
     "lint:ts:fix": "npx eslint --fix",
