@@ -46,7 +46,7 @@ test.describe("Trips Analysis", () => {
         await datePicker.press("Enter");
         await expect(page).toHaveURL(/.*\?date=2017-01-03/);
 
-        await page.goto("http://localhost:5173/?date=2016-12-31");
+        await page.goto("/?date=2016-12-31");
         await expect(datePicker).toHaveValue("2016-12-31");
         await expect(page).toHaveURL(/.*\?date=2016-12-31/);
 
@@ -64,7 +64,7 @@ test.describe("Trips Analysis", () => {
       
       await expect(page).toHaveURL(/.*\?(date=.*&)?profitCategory=medium(&date=.*)?/i);
   
-      await page.goto("http://localhost:5173/?date=2016-12-31&profitCategory=low");
+      await page.goto("/?date=2016-12-31&profitCategory=low");
       await expect(categoryFilter).toHaveValue("low");
       await expect(page).toHaveURL(/.*\?(date=.*&)?profitCategory=low(&date=.*)?/i);
   
