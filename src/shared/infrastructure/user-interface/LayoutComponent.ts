@@ -169,17 +169,17 @@ export class LayoutComponent extends HTMLElement {
 
         const mainContent = this.shadowRoot?.querySelector(".dashboard-main");
         if (mainContent) {
-          const combinedCard = document.createElement("div");
-          combinedCard.classList.add("dashboard-card");
-          combinedCard.appendChild(this.filterComponent);
-          combinedCard.appendChild(this.tripWidget);
+          const netMarginBarChartContainer = document.createElement("div");
+          netMarginBarChartContainer.classList.add("dashboard-card");
+          netMarginBarChartContainer.appendChild(this.profitCategoryFilter);
+          netMarginBarChartContainer.appendChild(this.netMarginBarChart);
 
-          const chartCard = document.createElement("div");
-          chartCard.classList.add("dashboard-card");
-          chartCard.appendChild(this.profitCategoryFilter);
-          chartCard.appendChild(this.netMarginBarChart);
+          const tripWidgetContainer = document.createElement("div");
+          tripWidgetContainer.classList.add("dashboard-card");
+          tripWidgetContainer.appendChild(this.filterComponent);
+          tripWidgetContainer.appendChild(this.tripWidget);
 
-          mainContent.append(combinedCard, chartCard);
+          mainContent.append(netMarginBarChartContainer, tripWidgetContainer);
         }
 
         if (dateParam) {
