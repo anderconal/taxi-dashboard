@@ -11,6 +11,7 @@
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:update:screenshots": "npx playwright test --update-snapshots",
     "test": "npx vitest",
+    "test:ci": "npx vitest run",
     "lint:ts": "npx eslint",
     "lint:ts:fix": "npx eslint --fix",
     "lint:css": "npx stylelint \"**/*.css\"",
